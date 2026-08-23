@@ -48,21 +48,33 @@ Texture is optional and must remain nearly imperceptible. It cannot soften type,
 
 ### Typography
 
-Use at most three roles:
+Working default:
 
-1. Display: forceful grotesk or condensed sans for titles and major statements.
-2. Text: highly readable face for long essays, with excellent italics, punctuation, and numeral behavior.
-3. Utility: restrained monospace for dates, labels, figure numbers, and code.
+- **Instrument Sans** for the masthead, navigation, titles, captions, labels, and metadata
+- **Newsreader** for essay body copy, quotations, and selected descriptions/decks
+- **no dedicated monospace in the initial system**
 
-Selection criteria:
+Instrument Sans is the expressive face. Use its weight and width axes to create forceful, slightly condensed display typography without adding a separate headline family. The identity should come from proportion, scale, spacing, and carefully selected alternates—not novelty glyphs.
 
-- distinctive at headline sizes
-- comfortable through a long essay
-- strong mobile rendering
-- practical licensing and self-hosting
-- useful variable axes only when they earn their file cost
+Newsreader is the reading face. It should make essays feel contemporary, bookish, and comfortable without turning the site into a literary magazine pastiche.
 
-Do not use monospace for all body copy or metadata merely to imply engineering.
+Initial role examples:
+
+- masthead: tracked uppercase Instrument Sans, medium weight
+- essay title: Instrument Sans, bold, moderately condensed, tightly spaced
+- body: Newsreader at a generous mobile-friendly size and line height
+- figure labels and dates: uppercase Instrument Sans at small sizes
+
+Do not add monospace merely to imply engineering. If real code content later justifies one, evaluate IBM Plex Mono as a deliberately scoped code face rather than a global brand role.
+
+Both working-default families are open-source variable fonts suitable for self-hosting. The implementation slice should subset and preload only the files and axes needed by the initial pages.
+
+Two prototype alternatives remain available if the working default fails in real layouts:
+
+1. **ABC Diatype alone** for a premium, more object/manual-like all-sans direction.
+2. **Suisse Int'l + Suisse Works** for a premium, more classical Swiss editorial direction.
+
+These are comparison routes, not parallel implementation scope. Prototype the working default first against the real homepage and essay. Change direction only if the comparison materially improves the product enough to justify paid licensing or a different tone.
 
 ### Layout
 
@@ -113,7 +125,20 @@ Recommended order:
 
 Avoid oversized introductory copy, skills matrices, technology badges, testimonial language, and a gallery of half-maintained personal categories.
 
-The portrait should work as punctuation rather than the entire hero. Candidate treatments include a tight crop, reduced palette, halftone print, or an ink-like version derived from the original drawing.
+The portrait should work as punctuation rather than the entire hero. Do not pixelate it, and do not place the unchanged full-color v1 asset into the new system as the final treatment.
+
+Working treatment:
+
+- preserve the original hand-drawn linework and recognizable face
+- use a tighter head-and-shoulders crop
+- replace transparent/empty areas with the site's paper canvas
+- map outlines to the site's near-black ink
+- reduce the interior to three or four ink-like colors: paper/flesh neutral, muted ochre hair, desaturated ink-blue hoodie, and an optional restrained rose
+- simplify soft shading while keeping the drawing recognizably handmade
+- use halftone or slight print misregistration only in selected shadows, not as a global texture
+- create a separately tuned dark-theme asset rather than algorithmically inverting the light version
+
+The intended reference is a screen-printed editorial illustration, not a pixel avatar. Preserve the original asset as the source of truth and for possible use in an About/process context. Derive a simplified one-color mark for favicon-scale use only after the primary treatment works.
 
 ## Writing index
 
@@ -192,16 +217,16 @@ Check:
 - theme contrast
 - portrait crop and resolution
 
-## Initial design decisions still required
+## Initial implementation decisions still required
 
 The first design/foundation slice should resolve:
 
-- exact display and text typefaces
 - initial light and dark tokens
-- portrait treatment
 - masthead composition at three target widths
 - homepage title and featured-entry rhythm
 - essay measure and figure-width rules
 - whether the manual theme control belongs in the MVP shell
+- exact font subset/axis loading strategy
+- final light- and dark-theme portrait color values
 
-Resolve these through a working prototype with real essay copy, not isolated moodboards alone.
+Resolve these through a working prototype with real essay copy, not isolated moodboards alone. Instrument Sans + Newsreader and the limited-ink portrait are the defaults to implement, not questions to reopen before work begins.

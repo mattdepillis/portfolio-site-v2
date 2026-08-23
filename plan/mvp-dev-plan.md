@@ -63,13 +63,13 @@ Goal: make the global experience feel like the intended publication.
 Deliverables:
 
 - light and dark design tokens
-- selected local font strategy
+- self-hosted Instrument Sans for display/UI roles and Newsreader for essay text, with no initial monospace
 - spacing and layout primitives
 - editorial masthead and footer
 - active navigation state
 - responsive behavior across phone, tablet, and desktop
 - focus and reduced-motion treatments
-- first portrait treatment using the v1 asset as source
+- limited-ink, tightly cropped portrait treatment preserving the v1 linework, plus a separately tuned dark-theme version
 
 Exit criteria:
 
@@ -77,6 +77,8 @@ Exit criteria:
 - navigation works by keyboard and touch
 - both themes meet contrast expectations
 - portrait use feels recognizable but not mascot-like
+- portrait is neither pixelated nor an unchanged reuse of the v1 full-color asset
+- title, metadata, and long-form specimens demonstrate the intended Instrument Sans + Newsreader hierarchy
 - font and asset loading remain within the recorded budgets
 
 ## Stage 3 — Real essay vertical slice

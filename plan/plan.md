@@ -187,9 +187,9 @@ Interpret the Le Labo reference as discipline rather than imitation:
 - sparse accent color
 - subtle tactile character where it does not reduce sharpness
 
-Typography should do most of the branding work. Explore a forceful grotesk or condensed sans for display, an exceptionally readable text face for essays, and monospace only for restrained utility roles.
+Typography should do most of the branding work. The working system is Instrument Sans for display, navigation, labels, and metadata, paired with Newsreader for long-form reading. Use Instrument Sans's variable width and weight to give titles force. Do not add a dedicated monospace initially; evaluate one later only if real code content justifies the payload and role.
 
-Retain the hand-drawn portrait as the durable identity asset. Explore simplified color, crop, halftone, or print treatments, but do not replace its distinctiveness with generic technical aesthetics.
+Retain the hand-drawn portrait as the durable identity asset. Do not pixelate it or ship the unchanged full-color v1 asset as the final treatment. Preserve its linework and reinterpret it as a tightly cropped, limited-ink editorial illustration using the paper canvas, near-black outlines, muted ochre hair, desaturated ink-blue clothing, restrained optional rose, and selective halftone texture. Produce separately tuned light- and dark-theme versions.
 
 Dark mode is required, but it should be a designed charcoal-and-warm-gray counterpart rather than a mechanical inversion.
 
@@ -239,4 +239,5 @@ The MVP is complete when it includes:
 - whether projects deserve a separate section
 - whether an essay justifies a reusable interactive visualization framework
 - whether dark mode should follow system only or expose a persistent manual control
-- which exact typefaces and hosting provider best fit the implemented prototype
+- which hosting provider best fits the implemented prototype
+- whether real layouts expose a strong enough reason to replace the default typography with a paid alternative
