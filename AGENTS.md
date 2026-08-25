@@ -2,12 +2,13 @@
 
 If you are an AI coding agent working in this repository, read these files before changing code:
 
-1. [plan/README.md](/Users/mattdepillis/dev/projects/portfolio-site-v2/plan/README.md)
-2. [plan/plan.md](/Users/mattdepillis/dev/projects/portfolio-site-v2/plan/plan.md)
-3. [plan/design-notes.md](/Users/mattdepillis/dev/projects/portfolio-site-v2/plan/design-notes.md)
-4. [plan/dev-rules.md](/Users/mattdepillis/dev/projects/portfolio-site-v2/plan/dev-rules.md)
-5. [plan/mvp-dev-plan.md](/Users/mattdepillis/dev/projects/portfolio-site-v2/plan/mvp-dev-plan.md)
-6. the active slice plan in `plan/slices/`, when one exists
+1. [plan/README.md](plan/README.md)
+2. [plan/plan.md](plan/plan.md)
+3. [plan/design-notes.md](plan/design-notes.md)
+4. [plan/dev-rules.md](plan/dev-rules.md)
+5. [plan/testing-rules.md](plan/testing-rules.md)
+6. [plan/mvp-dev-plan.md](plan/mvp-dev-plan.md)
+7. the active slice plan in `plan/slices/`, when one exists
 
 ## Required orientation
 
