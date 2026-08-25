@@ -25,6 +25,10 @@ A dev plan is a review artifact, not independent product or architecture authori
 
 ## Active plan
 
-- [001: Application foundation](001-application-foundation.md)
+- [002: Visual system and publication shell](002-visual-system-and-shell.md)
+
+## Completed plans
+
+- [001: Application foundation](001-application-foundation.md) — implemented in PR #5
 
 Dev plans may be updated when implementation reveals a better in-scope approach, but material scope or architecture changes require primary-integrator review and an update to the authoritative slice when necessary.
