@@ -90,7 +90,7 @@ Optional metadata:
 
 Use a narrow status model sufficient for the current workflow, such as `draft` and `published`. Directory-derived stable slugs are preferred unless implementation evidence favors an explicit field.
 
-Include one clearly labeled, non-production fixture essay that exercises the real collection and detail route without pretending to be the first real article. Retire or replace the fixture as part of Stage 3 when the first real essay lands; production deployment remains a final backstop, not the intended removal point.
+Include one clearly labeled, non-production published fixture essay that exercises the real collection and detail route without pretending to be the first real article. A second, draft-only fixture is permitted solely to verify that unpublished content never generates a public route or appears in public output. Retire, replace, or deliberately isolate both fixtures as part of Stage 3 when the first real essay lands; production deployment remains a final backstop, not the intended removal point.
 
 ### Tooling
 

@@ -198,7 +198,7 @@ pnpm verify
 ### Base configuration
 
 - Configure Astro for static output and integrate MDX.
-- Set the site origin to `https://mattdepillis.com` for canonical metadata generation without adding deployment configuration.
+- Set the site origin to `https://mattdepillis.com` solely as the expected production identity for canonical-URL generation and correctness tests; this configuration does not choose a hosting provider, configure deployment, or authorize DNS changes.
 - Extend Astro's strict or strictest TypeScript configuration.
 - Ignore dependencies, `.astro` output, `dist/`, and generated local reports.
 - Keep configuration understandable without speculative plugin layers.
