@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import {
+  isPublished,
+  sortByDate,
+  validatePublishedSlugs,
+  writingPathFromSlug,
+} from '../lib/writing';
+
+const allEntries = await getCollection('writing');
+validatePublishedSlugs(allEntries);
+const published = sortByDate(allEntries.filter(isPublished));
+const latest = published[0];
+---
+
+<BaseLayout
+  title="Matt DePillis — Engineer and Writer"
+  description="Engineer and writer based in New York."
+>
+  <h1>Matt DePillis</h1>
+  <p>Engineer and writer based in New York.</p>
+  <section>
+    <h2>Writing</h2>
+    {
+      latest && (
+        <p>
+          <a href={writingPathFromSlug(latest.id)}>{latest.data.title} →</a>
+        </p>
+      )
+    }
+    <p>
+      <a href="/writing/">View all writing →</a>
+    </p>
+  </section>
+  <section>
+    <h2>About</h2>
+    <p>
+      <a href="/about/">Learn more about me →</a>
+    </p>
+  </section>
+</BaseLayout>

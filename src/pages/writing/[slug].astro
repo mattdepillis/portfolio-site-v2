@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+import { isPublished, validatePublishedSlugs, writingPathFromSlug } from '../../lib/writing';
+
+export async function getStaticPaths() {
+  const allEntries = await getCollection('writing');
+  validatePublishedSlugs(allEntries);
+  const published = allEntries.filter(isPublished);
+
+  return published.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout
+  title={`${entry.data.title} — Matt DePillis`}
+  description={entry.data.description}
+  canonicalPath={writingPathFromSlug(entry.id)}
+>
+  <article>
+    <header>
+      <h1>{entry.data.title}</h1>
+      <p>{entry.data.description}</p>
+      <time>{entry.data.publishedAt.toISOString().split('T')[0]}</time>
+    </header>
+    <Content />
+  </article>
+</BaseLayout>
