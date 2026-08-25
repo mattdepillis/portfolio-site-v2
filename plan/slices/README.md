@@ -4,11 +4,15 @@ This directory contains the canonical bounded implementation plans for `portfoli
 
 ## Active slice
 
-- [001: Application foundation](001-application-foundation.md)
+- [002: Visual system and publication shell](002-visual-system-and-shell.md)
 
 Matching reviewed execution proposal:
 
-- [001: Application foundation implementation plan](../dev-plans/001-application-foundation.md)
+- [002: Visual system and publication shell implementation plan](../dev-plans/002-visual-system-and-shell.md)
+
+## Completed slices
+
+- [001: Application foundation](001-application-foundation.md) — merged in PR #5
 
 The active slice is the current source of implementation scope. The matching dev plan translates that scope into execution details; it does not expand, replace, or supersede the slice.
 
