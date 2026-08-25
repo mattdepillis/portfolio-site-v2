@@ -5,6 +5,7 @@ import {
   sortByDate,
   writingPathFromSlug,
   canonicalUrl,
+  isValidSlug,
   type WritingEntry,
 } from '../../src/lib/writing';
 
@@ -144,5 +145,55 @@ describe('writingPathFromSlug', () => {
 describe('canonicalUrl', () => {
   it('generates correct canonical URL', () => {
     expect(canonicalUrl('/writing/test/')).toBe('https://mattdepillis.com/writing/test/');
+  });
+});
+
+describe('isValidSlug', () => {
+  it('accepts simple slug', () => {
+    expect(isValidSlug('my-essay')).toBe(true);
+  });
+
+  it('accepts single word', () => {
+    expect(isValidSlug('essay')).toBe(true);
+  });
+
+  it('accepts slug with numbers', () => {
+    expect(isValidSlug('post-42')).toBe(true);
+  });
+
+  it('rejects nested path', () => {
+    expect(isValidSlug('topic/example')).toBe(false);
+  });
+
+  it('rejects traversal attempt', () => {
+    expect(isValidSlug('../secret')).toBe(false);
+  });
+
+  it('rejects absolute path', () => {
+    expect(isValidSlug('/etc/passwd')).toBe(false);
+  });
+
+  it('rejects uppercase letters', () => {
+    expect(isValidSlug('My-Essay')).toBe(false);
+  });
+
+  it('rejects empty string', () => {
+    expect(isValidSlug('')).toBe(false);
+  });
+
+  it('rejects slug with spaces', () => {
+    expect(isValidSlug('my essay')).toBe(false);
+  });
+
+  it('rejects slug with special characters', () => {
+    expect(isValidSlug('my_essay')).toBe(false);
+  });
+
+  it('rejects slug starting with hyphen', () => {
+    expect(isValidSlug('-essay')).toBe(false);
+  });
+
+  it('rejects slug ending with hyphen', () => {
+    expect(isValidSlug('essay-')).toBe(false);
   });
 });

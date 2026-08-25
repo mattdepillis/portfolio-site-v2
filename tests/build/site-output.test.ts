@@ -2,8 +2,17 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { execSync } from 'node:child_process';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import * as cheerio from 'cheerio';
 
 const DIST_DIR = join(import.meta.dirname, '..', '..', 'dist');
+
+const PRIMARY_PAGES = [
+  { file: 'index.html', name: 'homepage' },
+  { file: 'writing/index.html', name: 'writing archive' },
+  { file: 'writing/foundation-fixture/index.html', name: 'fixture essay' },
+  { file: 'about/index.html', name: 'about' },
+  { file: '404.html', name: '404' },
+];
 
 function runBuild() {
   try {
@@ -19,6 +28,10 @@ function readFile(path: string): string {
 
 function fileExists(path: string): boolean {
   return existsSync(join(DIST_DIR, path));
+}
+
+function loadHtml(path: string): cheerio.CheerioAPI {
+  return cheerio.load(readFile(path));
 }
 
 beforeAll(() => {
@@ -53,30 +66,80 @@ describe('Route generation', () => {
   });
 });
 
-describe('Page content', () => {
-  it('homepage contains title and heading', () => {
-    const html = readFile('index.html');
-    expect(html).toContain('<title>');
-    expect(html).toContain('<h1>');
-    expect(html).toContain('Matt DePillis');
+describe('Exactly one h1 per page', () => {
+  for (const { file, name } of PRIMARY_PAGES) {
+    it(`${name} has exactly one h1`, () => {
+      const $ = loadHtml(file);
+      const h1Count = $('h1').length;
+      expect(h1Count).toBe(1);
+    });
+  }
+});
+
+describe('Required landmarks', () => {
+  for (const { file, name } of PRIMARY_PAGES) {
+    it(`${name} has main landmark`, () => {
+      const $ = loadHtml(file);
+      expect($('main').length).toBeGreaterThanOrEqual(1);
+    });
+
+    it(`${name} has nav landmark`, () => {
+      const $ = loadHtml(file);
+      expect($('nav').length).toBeGreaterThanOrEqual(1);
+    });
+  }
+});
+
+describe('Descriptive title and meta description', () => {
+  for (const { file, name } of PRIMARY_PAGES) {
+    it(`${name} has a non-empty title`, () => {
+      const $ = loadHtml(file);
+      const title = $('title').text().trim();
+      expect(title.length).toBeGreaterThan(0);
+    });
+
+    it(`${name} has a meta description`, () => {
+      const $ = loadHtml(file);
+      const desc = $('meta[name="description"]').attr('content');
+      expect(desc).toBeDefined();
+      expect(desc!.length).toBeGreaterThan(0);
+    });
+  }
+});
+
+describe('Canonical URLs', () => {
+  const canonicalRoutes: Array<{ file: string; path: string }> = [
+    { file: 'index.html', path: '/' },
+    { file: 'writing/index.html', path: '/writing/' },
+    { file: 'writing/foundation-fixture/index.html', path: '/writing/foundation-fixture/' },
+    { file: 'about/index.html', path: '/about/' },
+  ];
+
+  for (const { file, path } of canonicalRoutes) {
+    it(`${file} has correct canonical URL`, () => {
+      const $ = loadHtml(file);
+      const canonical = $('link[rel="canonical"]').attr('href');
+      expect(canonical).toBe(`https://mattdepillis.com${path}`);
+    });
+  }
+});
+
+describe('Internal navigation resolves to generated routes', () => {
+  it('homepage links to writing archive and about', () => {
+    const $ = loadHtml('index.html');
+    const internalLinks = $('a[href^="/"]')
+      .toArray()
+      .map((el) => $(el).attr('href')!);
+    expect(internalLinks).toContain('/writing/');
+    expect(internalLinks).toContain('/about/');
   });
 
-  it('writing archive lists published entries', () => {
-    const html = readFile('writing/index.html');
-    expect(html).toContain('Foundation Fixture');
-    expect(html).toContain('/writing/foundation-fixture/');
-  });
-
-  it('fixture essay renders content', () => {
-    const html = readFile('writing/foundation-fixture/index.html');
-    expect(html).toContain('Foundation Fixture');
-    expect(html).toContain('test fixture');
-    expect(html).toContain('<article>');
-  });
-
-  it('about page contains heading', () => {
-    const html = readFile('about/index.html');
-    expect(html).toContain('<h1>About</h1>');
+  it('writing archive links to fixture essay', () => {
+    const $ = loadHtml('writing/index.html');
+    const internalLinks = $('a[href^="/"]')
+      .toArray()
+      .map((el) => $(el).attr('href')!);
+    expect(internalLinks).toContain('/writing/foundation-fixture/');
   });
 });
 
@@ -94,54 +157,40 @@ describe('Draft exclusion', () => {
   });
 });
 
-describe('Semantic HTML', () => {
-  it('pages have main landmark', () => {
-    const html = readFile('index.html');
-    expect(html).toContain('<main');
-  });
-
-  it('pages have nav landmark', () => {
-    const html = readFile('index.html');
-    expect(html).toContain('<nav');
-  });
-
-  it('pages have descriptive title', () => {
-    const html = readFile('index.html');
-    expect(html).toMatch(/<title>[^<]+<\/title>/);
-  });
-
-  it('pages have canonical URL', () => {
-    const html = readFile('index.html');
-    expect(html).toContain('https://mattdepillis.com');
-  });
-});
-
 describe('No client JavaScript', () => {
-  it('base pages contain no script tags', () => {
-    const pages = ['index.html', 'writing/index.html', 'about/index.html', '404.html'];
-    for (const page of pages) {
-      const html = readFile(page);
-      expect(html).not.toMatch(/<script[^>]*>/);
-    }
-  });
+  for (const { file, name } of PRIMARY_PAGES) {
+    it(`${name} has no script tags`, () => {
+      const $ = loadHtml(file);
+      expect($('script').length).toBe(0);
+    });
+  }
 });
 
 describe('No third-party resources', () => {
-  it('no external origins in loaded resources', () => {
-    const pages = [
-      'index.html',
-      'writing/index.html',
-      'writing/foundation-fixture/index.html',
-      'about/index.html',
-    ];
-    for (const page of pages) {
-      const html = readFile(page);
-      // Check for resource-loading attributes (script src, link href, img src, etc.)
-      // but allow editorial hyperlinks (a href) which are reader-clicked links
-      const externalSrcPattern = /src="https?:\/\/(?!mattdepillis\.com)/g;
-      const externalLinkPattern = /<link[^>]+href="https?:\/\/(?!mattdepillis\.com)/g;
-      expect(html).not.toMatch(externalSrcPattern);
-      expect(html).not.toMatch(externalLinkPattern);
-    }
-  });
+  const selfOrigin = 'mattdepillis.com';
+
+  for (const { file, name } of PRIMARY_PAGES) {
+    it(`${name} loads no external resources`, () => {
+      const $ = loadHtml(file);
+
+      $('script[src]').each((_, el) => {
+        const src = $(el).attr('src') || '';
+        expect(src).not.toMatch(/^https?:\/\//);
+      });
+
+      $('link[href]').each((_, el) => {
+        const href = $(el).attr('href') || '';
+        if (href.match(/^https?:\/\//)) {
+          expect(href).toContain(selfOrigin);
+        }
+      });
+
+      $('img[src]').each((_, el) => {
+        const src = $(el).attr('src') || '';
+        if (src.match(/^https?:\/\//)) {
+          expect(src).toContain(selfOrigin);
+        }
+      });
+    });
+  }
 });

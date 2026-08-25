@@ -1,5 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { isPublished, sortByDate, writingPathFromSlug } from '../lib/writing';
+
+const allEntries = await getCollection('writing');
+const published = sortByDate(allEntries.filter(isPublished));
+const latest = published[0];
 ---
 
 <BaseLayout
@@ -10,6 +16,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <p>Engineer and writer based in New York.</p>
   <section>
     <h2>Writing</h2>
+    {
+      latest && (
+        <p>
+          <a href={writingPathFromSlug(latest.id)}>{latest.data.title} →</a>
+        </p>
+      )
+    }
     <p>
       <a href="/writing/">View all writing →</a>
     </p>

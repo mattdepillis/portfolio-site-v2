@@ -1,5 +1,7 @@
 import { z } from 'astro/zod';
 
+export const SAFE_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 export const writingSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
@@ -41,4 +43,8 @@ export function writingPathFromSlug(slug: string): string {
 export function canonicalUrl(path: string): string {
   const base = 'https://mattdepillis.com';
   return `${base}${path}`;
+}
+
+export function isValidSlug(slug: string): boolean {
+  return SAFE_SLUG_RE.test(slug) && !slug.includes('/');
 }
