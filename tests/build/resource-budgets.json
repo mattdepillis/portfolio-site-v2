@@ -1,0 +1,11 @@
+{
+  "description": "Resource budgets measured from a clean Stage 1 static build. Updated as the visual system adds deliberate assets.",
+  "maxHtmlFiles": 10,
+  "maxCssFiles": 2,
+  "maxJsFiles": 0,
+  "maxFontFiles": 0,
+  "maxImageFiles": 0,
+  "maxTotalHtmlBytes": 50000,
+  "maxTotalCssBytes": 10000,
+  "maxTotalJsBytes": 0
+}

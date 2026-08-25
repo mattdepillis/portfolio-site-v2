@@ -1,0 +1,64 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
+<header>
+  <nav aria-label="Primary">
+    <a href="/" class="masthead-name">Matt DePillis</a>
+    <ul>
+      <li>
+        <a href="/writing/" aria-current={currentPath.startsWith('/writing') ? 'page' : undefined}>
+          Writing
+        </a>
+      </li>
+      <li>
+        <a href="/about/" aria-current={currentPath.startsWith('/about') ? 'page' : undefined}>
+          About
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  header {
+    border-bottom: 1px solid #e5e5e5;
+    padding: 1rem;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .masthead-name {
+    font-weight: 600;
+    text-decoration: none;
+    color: #111;
+  }
+
+  ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 1.5rem;
+  }
+
+  a {
+    text-decoration: none;
+    color: #555;
+  }
+
+  a:hover {
+    color: #111;
+  }
+
+  a[aria-current='page'] {
+    color: #111;
+    font-weight: 500;
+  }
+</style>

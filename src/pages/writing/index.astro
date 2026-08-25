@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { isPublished, sortByDate, writingPathFromSlug } from '../../lib/writing';
+
+const allEntries = await getCollection('writing');
+const published = allEntries.filter(isPublished);
+const sorted = sortByDate(published);
+---
+
+<BaseLayout title="Writing — Matt DePillis" description="Essays and writing by Matt DePillis.">
+  <h1>Writing</h1>
+  <ul>
+    {
+      sorted.map((entry) => (
+        <li>
+          <a href={writingPathFromSlug(entry.id)}>{entry.data.title}</a>
+          <p>{entry.data.description}</p>
+          <time>{entry.data.publishedAt.toISOString().split('T')[0]}</time>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>
