@@ -48,3 +48,17 @@ export function canonicalUrl(path: string): string {
 export function isValidSlug(slug: string): boolean {
   return SAFE_SLUG_RE.test(slug) && !slug.includes('/');
 }
+
+export function validatePublishedSlugs<T extends { id: string; data: WritingEntry }>(
+  entries: T[],
+): T[] {
+  const published = entries.filter(isPublished);
+  const invalid = published.filter((e) => !isValidSlug(e.id));
+  if (invalid.length > 0) {
+    const ids = invalid.map((e) => `"${e.id}"`).join(', ');
+    throw new Error(
+      `Published essays have invalid slugs (must be single lowercase alphanumeric segments): ${ids}`,
+    );
+  }
+  return entries;
+}

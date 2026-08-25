@@ -1,9 +1,15 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import { isPublished, sortByDate, writingPathFromSlug } from '../../lib/writing';
+import {
+  isPublished,
+  sortByDate,
+  validatePublishedSlugs,
+  writingPathFromSlug,
+} from '../../lib/writing';
 
 const allEntries = await getCollection('writing');
+validatePublishedSlugs(allEntries);
 const published = allEntries.filter(isPublished);
 const sorted = sortByDate(published);
 ---

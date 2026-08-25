@@ -6,6 +6,7 @@ import {
   writingPathFromSlug,
   canonicalUrl,
   isValidSlug,
+  validatePublishedSlugs,
   type WritingEntry,
 } from '../../src/lib/writing';
 
@@ -195,5 +196,54 @@ describe('isValidSlug', () => {
 
   it('rejects slug ending with hyphen', () => {
     expect(isValidSlug('essay-')).toBe(false);
+  });
+});
+
+describe('validatePublishedSlugs', () => {
+  it('passes when all published slugs are valid', () => {
+    const entries = [
+      { id: 'my-essay', data: { ...makeEntry().data, status: 'published' as const } },
+      { id: 'another-post', data: { ...makeEntry().data, status: 'published' as const } },
+    ];
+    expect(() => validatePublishedSlugs(entries)).not.toThrow();
+  });
+
+  it('ignores draft entries with invalid slugs', () => {
+    const entries = [
+      { id: 'valid-slug', data: { ...makeEntry().data, status: 'published' as const } },
+      { id: 'bad/slug', data: { ...makeEntry().data, status: 'draft' as const } },
+    ];
+    expect(() => validatePublishedSlugs(entries)).not.toThrow();
+  });
+
+  it('throws on published entry with nested slug', () => {
+    const entries = [
+      { id: 'topic/example', data: { ...makeEntry().data, status: 'published' as const } },
+    ];
+    expect(() => validatePublishedSlugs(entries)).toThrow(/invalid slugs/);
+    expect(() => validatePublishedSlugs(entries)).toThrow('topic/example');
+  });
+
+  it('throws on published entry with traversal slug', () => {
+    const entries = [
+      { id: '../secret', data: { ...makeEntry().data, status: 'published' as const } },
+    ];
+    expect(() => validatePublishedSlugs(entries)).toThrow(/invalid slugs/);
+  });
+
+  it('reports all invalid slugs in error message', () => {
+    const entries = [
+      { id: 'bad/one', data: { ...makeEntry().data, status: 'published' as const } },
+      { id: 'bad/two', data: { ...makeEntry().data, status: 'published' as const } },
+    ];
+    expect(() => validatePublishedSlugs(entries)).toThrow('bad/one');
+    expect(() => validatePublishedSlugs(entries)).toThrow('bad/two');
+  });
+
+  it('returns the original entries array', () => {
+    const entries = [
+      { id: 'good-slug', data: { ...makeEntry().data, status: 'published' as const } },
+    ];
+    expect(validatePublishedSlugs(entries)).toBe(entries);
   });
 });
