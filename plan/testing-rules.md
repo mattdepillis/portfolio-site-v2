@@ -21,6 +21,17 @@ The legacy repository may be inspected by humans and agents as a visual or conte
 
 Assets intentionally carried forward, such as the portrait, must be copied into v2 with clear provenance and then treated as v2-owned inputs. That transfer belongs to the visual-system slice, not the application-foundation slice.
 
+## Staged introduction
+
+Testing grows with the product behavior it protects:
+
+1. **Stage 1 — Application foundation:** formatting, linting where justified, Astro/TypeScript diagnostics, Vitest unit/content-contract tests, production-build assertions, semantic HTML checks, and deterministic resource gates.
+2. **Stage 2 — Visual system and shell:** add Playwright against the local production preview, representative desktop/mobile navigation flows, keyboard coverage, and `@axe-core/playwright` scans after styled UI exists.
+3. **Stage 3 — Real essay:** add Lighthouse collection and representative performance baselines once real essay content, typography, images, and visual components exist.
+4. **Later publishing stages:** add focused tests for feeds, metadata, syndication transforms, interactive figures, and other behavior only when that behavior lands.
+
+Do not install or require a later-stage testing dependency in an earlier slice merely because it is part of the eventual quality strategy.
+
 ## Test layers
 
 ### 1. Static quality checks
@@ -44,6 +55,8 @@ Use Vitest for pure logic that has meaningful behavior, including:
 - canonical URL construction
 - reading-time or derived metadata logic, if introduced
 - syndication transformations in the later publishing slice
+
+Place unit tests in `tests/unit/`. Add content fixtures under `tests/fixtures/` only when they are separate from the tracked content-collection fixture.
 
 Do not unit-test static markup merely to increase test counts. Prefer browser or build-output assertions for rendered behavior.
 
@@ -81,9 +94,9 @@ Generated-output checks should parse HTML rather than depend on brittle whitespa
 
 ### 5. Browser tests
 
-Use Playwright against the local production preview, started automatically by the test configuration.
+Introduce Playwright in Stage 2, after the visual system and real navigation create browser behavior worth automating. Run it against the local production preview, started automatically by the test configuration.
 
-The foundation suite should cover Chromium at representative desktop and mobile viewports. Add WebKit and Firefox when visual-system or interaction work creates browser-specific risk; do not triple every static smoke test without a reason.
+The initial Stage 2 browser suite should cover Chromium at representative desktop and mobile viewports. Add WebKit and Firefox when interaction work creates browser-specific risk; do not triple every static smoke test without a reason.
 
 Initial browser assertions should verify:
 
@@ -94,11 +107,11 @@ Initial browser assertions should verify:
 - keyboard navigation can reach primary links
 - no page depends on JavaScript for its core content
 
-Visual regression screenshots should begin in the visual-system slice, after typography and layout are intentional. Do not create baselines from unstyled scaffolding.
+Consider visual regression screenshots in Stage 2 only after typography and layout are intentional. Do not create baselines from unstyled scaffolding.
 
 ### 6. Accessibility checks
 
-Use semantic assertions and `@axe-core/playwright` in the browser suite.
+In Stage 1, verify semantic structure through generated-output assertions and a manual browser preview. Add `@axe-core/playwright` to the Stage 2 browser suite once styled routes and keyboard interactions exist.
 
 Every primary route should have:
 
@@ -127,9 +140,9 @@ Record the actual clean-build baseline before selecting exact byte thresholds. S
 
 #### Timing and score gates
 
-Use Lighthouse CI against the built static output for performance, accessibility, best-practices, and SEO observations.
+Introduce Lighthouse in Stage 3, after the first real essay creates a meaningful performance target. Use it against the built static output for performance, accessibility, best-practices, and SEO observations.
 
-During the foundation slice:
+During the real-essay slice:
 
 - collect multiple local runs on representative routes
 - record the median and range
@@ -140,7 +153,7 @@ Promote timing metrics and category scores to blocking CI thresholds only after 
 
 ## Local command contract
 
-The foundation implementation should expose predictable package scripts:
+The Stage 1 foundation should expose only its required package scripts:
 
 ```text
 pnpm dev             # local authoring server
@@ -150,17 +163,27 @@ pnpm typecheck       # Astro/TypeScript diagnostics
 pnpm test:unit       # Vitest
 pnpm build           # production static build
 pnpm test:build      # assertions against dist output
-pnpm test:e2e        # Playwright against production preview
-pnpm test:a11y       # focused accessibility browser checks, if kept separate
-pnpm test:perf       # local Lighthouse collection/assertion
 pnpm verify          # format, lint, type, unit, build, and dist-output gates
-pnpm verify:browser  # production-preview browser and accessibility gates
-pnpm verify:all      # complete required local/CI verification
 ```
 
-The verification commands should be safe to run repeatedly and must not require network access after dependencies and browser binaries are installed. They must not publish, deploy, modify content, or write outside ignored build/test-output directories.
+Stage 2 may add:
 
-Performance collection may remain outside `pnpm verify` initially if local Chrome availability makes it environment-sensitive. CI should still retain deterministic resource-budget checks.
+```text
+pnpm test:e2e        # Playwright against production preview
+pnpm test:a11y       # focused accessibility browser checks, if kept separate
+pnpm verify:browser  # production-preview browser and accessibility gates
+pnpm verify:all      # deterministic plus browser verification
+```
+
+Stage 3 may add:
+
+```text
+pnpm test:perf       # local Lighthouse collection/assertion
+```
+
+The verification commands should be safe to run repeatedly and must not require network access after the dependencies required for their stage are installed. They must not publish, deploy, modify content, or write outside ignored build/test-output directories.
+
+Performance collection may remain outside the required aggregate command initially if local Chrome availability or runner timing variance makes it environment-sensitive. Deterministic resource-budget checks remain part of the foundation gate.
 
 ## CI contract
 
@@ -169,10 +192,15 @@ The initial GitHub Actions workflow should:
 1. check out the repository
 2. install the pinned Node and pnpm versions
 3. install dependencies from the frozen lockfile
-4. run deterministic verification
-5. install only the Playwright browser required by the initial suite
-6. run production-preview browser tests
-7. upload Playwright artifacts only on failure
+4. run the complete deterministic Stage 1 verification command
+
+Stage 2 extends the workflow to:
+
+1. install only the Playwright browser required by the initial suite
+2. run production-preview browser and accessibility tests
+3. upload Playwright artifacts only on failure
+
+Stage 3 may add informational Lighthouse collection after measuring runner variance.
 
 Use dependency caching provided by the package-manager setup. Do not cache build output until there is evidence that it improves runtime without hiding correctness problems.
 
@@ -189,16 +217,16 @@ Use a small, clearly identified fixture essay containing enough structure to exe
 - internal and external links
 - one local image placeholder only if image handling is in the active slice
 
-The foundation fixture should exercise the same collection and detail route as a real essay while being unmistakably labeled as test content. Because this slice explicitly excludes deployment, it may exist in the generated local/CI output. It must be removed or replaced by real content before production deployment is enabled. Avoid a test-only content pipeline unless a genuine isolation problem justifies it.
+The foundation fixture should exercise the same collection and detail route as a real essay while being unmistakably labeled as test content. Because Stage 1 explicitly excludes deployment, it may exist in generated local/CI output. Remove or replace it as part of Stage 3 when the first real essay lands, then point content/browser checks at the real entry or an appropriately isolated test fixture. A no-fixture production-deployment check remains a final safety backstop. Avoid a test-only content pipeline unless a genuine isolation problem justifies it.
 
 ## Failure artifacts
 
 Keep debugging output useful and bounded:
 
-- Playwright trace and screenshot on failure
-- HTML report as an ignored local artifact
-- Lighthouse reports in an ignored local directory
 - clear schema and build errors in standard output
+- from Stage 2 onward, Playwright trace and screenshot on failure
+- from Stage 2 onward, browser HTML report as an ignored local artifact
+- from Stage 3 onward, Lighthouse reports in an ignored local directory
 
 Do not commit generated test reports or browser binaries.
 

@@ -12,7 +12,7 @@ The slice should answer four questions:
 
 1. Can the publication build as static HTML from a clean checkout?
 2. Can typed MDX content generate the intended route structure?
-3. Can local and CI checks catch broken content, missing routes, unwanted JavaScript, and basic accessibility regressions?
+3. Can local and CI checks catch broken content, missing routes, unwanted JavaScript, and missing semantic page structure?
 4. Can a contributor preview and verify the site without any dependency on v1 or Notion?
 
 ## Product orientation
@@ -50,11 +50,11 @@ src/
   styles/
 tests/
   build/
-  e2e/
   fixtures/
+  unit/
 ```
 
-Avoid placeholder folders that have no owner or immediate use.
+Place Vitest tests in `tests/unit/` and generated-output assertions in `tests/build/`. Add `tests/e2e/` in Stage 2 when browser automation becomes useful. Avoid placeholder folders that have no owner or immediate use.
 
 ### Routes
 
@@ -90,7 +90,7 @@ Optional metadata:
 
 Use a narrow status model sufficient for the current workflow, such as `draft` and `published`. Directory-derived stable slugs are preferred unless implementation evidence favors an explicit field.
 
-Include one clearly labeled, non-production fixture essay that exercises the real collection and detail route without pretending to be the first real article. This slice does not deploy publicly; removing or replacing the fixture is a prerequisite for the later deployment slice.
+Include one clearly labeled, non-production fixture essay that exercises the real collection and detail route without pretending to be the first real article. Retire or replace the fixture as part of Stage 3 when the first real essay lands; production deployment remains a final backstop, not the intended removal point.
 
 ### Tooling
 
@@ -100,11 +100,10 @@ Establish only the tools needed for the verification contract:
 - formatter
 - linter where it adds checks not already covered by formatting/type diagnostics
 - Vitest
-- Playwright
-- `@axe-core/playwright`
-- Lighthouse CI or an equivalent local Lighthouse command for baseline collection
 
 Dependency versions must be explicit and current at implementation time. The implementation PR should justify overlapping tools and omit any that do not yet provide distinct value.
+
+Do not install Playwright, `@axe-core/playwright`, or Lighthouse for this slice. Stage 2 introduces browser and automated accessibility coverage once there is styled navigation and a meaningful visual system to verify. Stage 3 introduces Lighthouse after a real essay, typography, and images create a representative performance target.
 
 ### Developer workflow
 
@@ -118,7 +117,7 @@ Document:
 - focused test commands
 - where content and fixtures live
 - confirmation that no v1 repository or Notion configuration is required
-- distinction between `pnpm verify`, `pnpm verify:browser`, `pnpm verify:all`, and the non-blocking initial performance command
+- confirmation that `pnpm verify` is the complete Stage 1 local and CI gate
 
 ### Continuous integration
 
@@ -131,10 +130,9 @@ Required blocking gates:
 - unit and content-contract tests
 - production build
 - generated-output tests
-- initial Chromium Playwright smoke/accessibility suite
 - deterministic resource-budget assertions
 
-Lighthouse timing scores may be reported rather than blocking until runner variance is measured. Do not upload reports to a public third-party service by default.
+Do not install browsers or collect Lighthouse results in the foundation workflow. Those checks enter CI only in the later stages that introduce the corresponding user-facing risks.
 
 ## Testing plan
 
@@ -165,41 +163,27 @@ After `astro build`, verify:
 - core page text exists in HTML without executing JavaScript
 - base pages do not reference unexpected page JavaScript bundles
 
-### Browser smoke and accessibility
+### Manual browser and semantic checks
 
-Run Playwright against the production preview.
+Start the local production preview and manually verify:
 
-Desktop Chromium:
+- every primary route and the fixture detail route load
+- navigation reaches the expected destinations
+- the fixture essay title and metadata are visible
+- a representative phone-width viewport does not produce obvious horizontal overflow
 
-- visit every primary route
-- follow top-level navigation links
-- verify the fixture essay content and metadata
-- assert no unexpected console errors
-- run axe on every primary route
+Use generated-output tests to assert descriptive document titles, semantic landmarks, and a clear page-level heading. Automated Playwright, axe, keyboard-flow, and visual-regression coverage begins in Stage 2 after real navigation and styling exist.
 
-Mobile Chromium:
-
-- repeat route availability and primary navigation checks at one representative phone viewport
-- verify the document does not create horizontal page overflow
-
-Keyboard:
-
-- tab through top-level links in logical order
-- verify focused links can be activated
-
-Do not add visual snapshots until the visual system is intentional.
-
-### Performance baseline
+### Deterministic resource baseline
 
 Against the static build:
 
 - record resource counts and transfer sizes for HTML, CSS, JavaScript, fonts, and images
 - assert zero third-party requests
 - assert no client JavaScript on base pages unless Astro requires a documented minimal runtime
-- run multiple Lighthouse collections for `/`, `/writing`, and the fixture essay
-- record median/range rather than treating one run as truth
 - convert stable resource limits into CI failures
-- document which Lighthouse assertions remain informational and why
+
+Do not collect Lighthouse scores against unstyled scaffolding. Stage 3 establishes timing and category-score baselines against real essay content and representative visual assets.
 
 ## Expected files
 
@@ -212,8 +196,7 @@ Likely additions or changes include:
 - `tsconfig.json`
 - formatter/linter configuration
 - Vitest configuration
-- Playwright configuration
-- Lighthouse configuration and resource budget
+- deterministic resource-budget configuration or assertions
 - `.github/workflows/ci.yml`
 - `src/**`
 - `tests/**`
@@ -234,8 +217,21 @@ The implementation plan may refine exact filenames, but it should explain materi
 - interactive charts or essay components
 - the first real essay draft
 - RSS, sitemap, social-image generation, or syndication tooling
+- Playwright or browser-automation dependencies
+- automated axe accessibility scans
+- Lighthouse installation, score tracking, or timing budgets
 - broad cross-browser visual regression coverage
 - a CMS or remote-content loader
+
+## Risks and open questions
+
+- Supported Astro, Node, pnpm, MDX, and Vitest versions must be verified against current official documentation during implementation.
+- Exact resource byte budgets cannot be selected responsibly until a clean static build exists and its output has been measured.
+- Astro's current content-collection and MDX conventions may change the proposed filenames or slug implementation; material differences should be documented in the implementation PR.
+- The fixture must exercise the real content path without being mistaken for a publishable essay, and Stage 3 must explicitly remove or replace it.
+- Formatter and linter choices may overlap with Astro diagnostics; add a separate tool only where it provides meaningful additional coverage.
+- Browser automation and automated accessibility scans are intentionally deferred until Stage 2; manual preview checks and semantic build assertions are the accepted temporary coverage boundary.
+- Lighthouse is intentionally deferred until Stage 3 because an unstyled fixture page is not a representative performance target.
 
 ## Independence acceptance criteria
 
@@ -251,15 +247,15 @@ The implementation PR is merge-ready when:
 
 - all required deterministic commands pass locally
 - required GitHub Actions checks pass
-- `pnpm verify:all` represents the complete required local and CI gate
-- production-output and Playwright suites exercise the built site
-- the clean baseline has documented resource and Lighthouse measurements
+- `pnpm verify` represents the complete required Stage 1 local and CI gate
+- generated-output tests exercise the production build
+- the clean baseline has documented deterministic resource measurements
 - all four primary routes and the fixture detail route work locally
 - invalid content produces a clear failure
 - no core content depends on client JavaScript
 - no v1 or Notion dependency exists
 - README authoring/development instructions are accurate from a clean checkout
-- the PR documents skipped checks, observed variance, and residual risks
+- the PR documents intentionally deferred browser/accessibility/performance automation and residual risks
 
 ## Review focus
 
