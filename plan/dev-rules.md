@@ -10,13 +10,16 @@ Build the site in short, reviewable slices:
 
 1. sync the repository's default branch
 2. create a fresh short-lived branch
-3. read the planning documents and active slice plan
-4. implement only the approved slice
-5. run proportional automated checks
-6. verify the rendered result at desktop and mobile widths for user-facing changes
-7. perform a self-review for scope drift, accessibility, performance, and visual regressions
-8. push a PR with verification notes and residual risks
-9. leave final merge authority to the founder
+3. read the planning documents, active slice, agent rules, and matching dev plan when one exists
+4. write or review the implementation dev plan before meaningful delegated work starts
+5. assign bounded implementation or review tasks with explicit file scope and acceptance criteria
+6. implement only the approved slice and return a structured agent handoff
+7. have the primary integrator inspect the diff, resolve integration issues, and check scope
+8. run proportional automated checks for the current stage
+9. verify the rendered result at desktop and mobile widths for user-facing changes
+10. perform a self-review for scope drift, accessibility, performance, and visual regressions
+11. push a PR with verification notes and residual risks
+12. leave final merge authority to the founder
 
 Recommended branch prefixes are `feat/`, `fix/`, `docs/`, and `chore/`. Do not stack unrelated work in one branch.
 
@@ -34,7 +37,29 @@ Before a meaningful implementation slice, create a plan in `plan/slices/` contai
 - verification plan
 - merge criteria
 
-The plan should be concrete enough for a reviewer to understand what will change, why, and how completion will be judged. If an implementation discovery materially changes scope or architecture, update the plan before continuing.
+The plan should be concrete enough for a reviewer to understand what will change, why, and how completion will be judged. [slices/README.md](slices/README.md) identifies the current active slice; historical plans are not parallel implementation authority.
+
+For a substantial or delegated slice, add a matching implementation writeback in `plan/dev-plans/` covering:
+
+- the approved slice and current stage
+- execution prerequisites and current environment assumptions
+- allowed and out-of-scope files
+- file-level implementation sequencing
+- content, accessibility, and performance contracts
+- exact verification commands and expected evidence
+- an implementation-agent handoff prompt and return format
+
+The slice owns approved product scope. The dev plan owns a proposed implementation approach and is reviewed before code generation. If an implementation discovery materially changes scope or architecture, stop, raise it with the primary integrator, and update the appropriate approved planning document before continuing.
+
+## Agent roles and delegation
+
+The founder and primary integrator own product direction. For this repository, the primary integrator also owns design interpretation, architecture boundaries, sequencing, integration, final review, and implementation-PR readiness.
+
+Implementation agents such as OpenCode may own bounded first-pass scaffolding, route implementation, content-schema work, focused tests, and other clearly assigned tasks. They must not independently add product features, alter the visual direction, install later-stage tooling, expand file scope, or open/merge PRs unless specifically instructed.
+
+Review agents inspect the requested diff and report correctness issues, regressions, missing tests, performance/accessibility risks, and residual uncertainty. They do not rewrite product scope or treat stylistic preference as a defect without explaining its impact.
+
+Use the role and task contracts in [agents/README.md](agents/README.md). Every meaningful delegated implementation task needs an explicit assignment and a structured handoff before the primary integrator accepts the result.
 
 ## Product and scope rules
 

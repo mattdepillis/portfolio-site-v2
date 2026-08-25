@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed for implementation after review and merge of this plan.
+Active approved implementation slice. The proposed file-level execution and agent handoff are defined in [Development Plan 001](../dev-plans/001-application-foundation.md), which remains subordinate to this slice.
 
 ## Goal
 
